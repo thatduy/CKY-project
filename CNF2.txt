@@ -1,0 +1,11 @@
+﻿S -> NP VP
+NP -> N PRP
+NP -> cá
+VP -> V NP
+VP -> Adv VP
+VP -> V VP
+N -> bác
+PRP -> hai
+V -> đi
+V -> câu
+Adv -> hay

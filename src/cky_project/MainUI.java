@@ -9,6 +9,8 @@ import Model.CellInfo;
 import Model.NodeCNF;
 import Model.TableModel;
 import Util.RowNumberTable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,6 +18,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -23,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**
@@ -37,11 +41,11 @@ public class MainUI extends javax.swing.JFrame {
     private TableModel tableModel;
     private ArrayList<NodeCNF> arrayNodesCFN;
     private ArrayList<String> arrSentence;
-    private ArrayList<ArrayList<CellInfo>> table ;
+    private ArrayList<ArrayList<CellInfo>> table;
 
     public MainUI() {
         initComponents();
-       
+
     }
 
     private void readFileCNF(String path) throws FileNotFoundException, IOException {
@@ -50,30 +54,30 @@ public class MainUI extends javax.swing.JFrame {
         arrayNodesCFN = new ArrayList<>();
         while ((line = reader.readLine()) != null) {
             String[] secondPart = line.split("->")[1].trim().split(" ");
-            if(secondPart.length > 1){
-                arrayNodesCFN.add(new NodeCNF(line.split("->")[0].trim(), secondPart[0]
-                    , secondPart[1], false));
+            if (secondPart.length > 1) {
+                arrayNodesCFN.add(new NodeCNF(line.split("->")[0].trim(), secondPart[0],
+                         secondPart[1], false));
             } else {
-                arrayNodesCFN.add(new NodeCNF(line.split("->")[0].trim(), secondPart[0]
-                    , "", true));
+                arrayNodesCFN.add(new NodeCNF(line.split("->")[0].trim(), secondPart[0],
+                         "", true));
             }
-            
+
         }
         reader.close();
-        
-        
+
     }
-    private void parseSentence(String sentence){
+
+    private void parseSentence(String sentence) {
         //String sentence = edtSentence.getText();
         //INIT DATA FOR TABLE
         arrSentence = new ArrayList();
         arrSentence.addAll(Arrays.asList(sentence.toLowerCase().split(" ")));
         //set up table grid
         table = new ArrayList<>();
-        for(int i = 0; i < arrSentence.size(); i++){
+        for (int i = 0; i < arrSentence.size(); i++) {
             ArrayList<CellInfo> temp = new ArrayList<>();
-            for(int j = 0; j < arrSentence.size(); j++){
-                temp.add(new CellInfo(".", ".","", "."));
+            for (int j = 0; j < arrSentence.size(); j++) {
+                temp.add(new CellInfo(".", ".", "", "."));
             }
             table.add(temp);
         }
@@ -86,35 +90,30 @@ public class MainUI extends javax.swing.JFrame {
         tbCKYResult.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        for(int col = 0; col < tableModel.getColumnCount(); col++){
+        for (int col = 0; col < tableModel.getColumnCount(); col++) {
             tbCKYResult.getColumnModel().getColumn(col).setCellRenderer(rightRenderer);
         }
-//        for (int k = 0; k < arrSentence.size(); k++) {
-//            for (NodeCNF node : arrayNodesCFN) {
-//                if(node.isIsNonTerminal() && node.getFirstValue().equalsIgnoreCase(arrSentence.get(k).toString())){
-//                    //tbCKYResult.getModel().setValueAt(node.getOwnerName(), k, k);
-//                    break;
-//                }
-//            }
-//        }
-        
+
         //END INIT DATA
         
-        for(int k = 1; k <= arrSentence.size(); k++){
-            for(NodeCNF node : arrayNodesCFN){
-                if(arrSentence.get(k -1).equalsIgnoreCase(node.getFirstValue()) && node.isIsNonTerminal()){
+
+    }
+
+    private void realTimeUpdate(){
+        for (int k = 1; k <= arrSentence.size(); k++) {
+            for (NodeCNF node : arrayNodesCFN) {
+                if (arrSentence.get(k - 1).equalsIgnoreCase(node.getFirstValue()) && node.isIsNonTerminal()) {
                     table.get(k - 1).set(k - 1, new CellInfo(node.getOwnerName(), ".", "", "."));
-                    if(k == 1){
+                    if (k == 1) {
                         continue;
                     }
-                    for(int i = k - 2; i >= 0; i--){
-                        for(int j = i + 1; j <= k - 1; j++){
-                            for(NodeCNF n : arrayNodesCFN){
-                                if(table.get(i).get(j - 1).getLabelCell().equalsIgnoreCase(n.getFirstValue())
-                                        && table.get(j).get(k - 1).getLabelCell().equalsIgnoreCase(n.getSecondValue())
-                                        ){
+                    for (int i = k - 2; i >= 0; i--) {
+                        for (int j = i + 1; j <= k - 1; j++) {
+                            for (NodeCNF n : arrayNodesCFN) {
+                                if (table.get(i).get(j - 1).getLabelCell().equalsIgnoreCase(n.getFirstValue())
+                                        && table.get(j).get(k - 1).getLabelCell().equalsIgnoreCase(n.getSecondValue())) {
                                     System.out.println(n.getOwnerName());
-                                    table.get(i).set(k - 1, new CellInfo(n.getOwnerName(), "(" + i + ", " + j + ")", "+", 
+                                    table.get(i).set(k - 1, new CellInfo(n.getOwnerName(), "(" + i + ", " + j + ")", "+",
                                             "(" + j + ", " + k + ")"));
                                     break;
                                 }
@@ -126,7 +125,7 @@ public class MainUI extends javax.swing.JFrame {
             }
         }
         tableModel.fireTableDataChanged();
-        
+        //tbCKYResult.setR
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -149,7 +148,7 @@ public class MainUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(153, 255, 204));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "INPUT DATA", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Times New Roman", 1, 14), new java.awt.Color(0, 0, 102))); // NOI18N
 
         edtSentence.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         edtSentence.setText("Sentence");
@@ -200,16 +199,15 @@ public class MainUI extends javax.swing.JFrame {
                     .addComponent(edtSentence)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnImportCNF, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnStart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnReset, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnReset, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(edtSentence, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(edtCNFPath, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -218,10 +216,10 @@ public class MainUI extends javax.swing.JFrame {
                     .addComponent(btnImportCNF, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnStart, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnReset, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(17, 17, 17))
+                .addGap(28, 28, 28))
         );
 
-        jPanel2.setBackground(new java.awt.Color(0, 153, 255));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "RESULT", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Times New Roman", 1, 14), new java.awt.Color(0, 0, 102))); // NOI18N
 
         tbCKYResult.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         tbCKYResult.setCellSelectionEnabled(true);
@@ -235,14 +233,14 @@ public class MainUI extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 569, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 225, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -256,7 +254,7 @@ public class MainUI extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -267,13 +265,14 @@ public class MainUI extends javax.swing.JFrame {
     private void onStartClick(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_onStartClick
         // TODO add your handling code here:
         arrayNodesCFN = new ArrayList<>();
-        if(edtCNFPath.getText().isEmpty() || edtSentence.getText().isEmpty()){
+        if (edtCNFPath.getText().isEmpty() || edtSentence.getText().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Empty CNF rules or sentence");
         } else {
-            
+
             try {
                 readFileCNF("./CNF.txt");
-                parseSentence("Nó vừa gặp mấy người bạn trường cũ");
+                parseSentence("nó vừa gặp mấy người bạn trường cũ");
+                realTimeUpdate();
             } catch (IOException ex) {
                 Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -281,11 +280,8 @@ public class MainUI extends javax.swing.JFrame {
     }//GEN-LAST:event_onStartClick
 
     private void onResetClick(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_onResetClick
-        // TODO add your handling code here:\
-       table.get(1).set(1, new CellInfo("VP", "(1,2)","+", "(2,3)"));
-       tableModel.fireTableDataChanged();
-       jScrollPane1.revalidate();
-       jScrollPane1.repaint();
+        
+        
     }//GEN-LAST:event_onResetClick
 
     private void onImportCNFClick(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_onImportCNFClick
