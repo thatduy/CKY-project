@@ -1,0 +1,15 @@
+﻿S -> NP VP
+NP -> nó
+NP -> N N
+NP -> N Adj
+NP -> Adj NP
+NP -> NP NP
+VP -> VP NP
+VP -> Adv V
+N -> người
+N -> bạn
+N -> trường
+V -> gặp
+Adv -> vừa
+Q -> mấy
+Adj -> cũ

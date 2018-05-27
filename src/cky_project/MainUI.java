@@ -272,7 +272,7 @@ public class MainUI extends javax.swing.JFrame {
         } else {
             
             try {
-                readFileCNF("C:\\Users\\ASUS\\Desktop\\CNF.txt");
+                readFileCNF("./CNF.txt");
                 parseSentence("Nó vừa gặp mấy người bạn trường cũ");
             } catch (IOException ex) {
                 Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
