@@ -73,7 +73,7 @@ public class MainUI extends javax.swing.JFrame {
         for(int i = 0; i < arrSentence.size(); i++){
             ArrayList<CellInfo> temp = new ArrayList<>();
             for(int j = 0; j < arrSentence.size(); j++){
-                temp.add(new CellInfo("", "","", ""));
+                temp.add(new CellInfo(".", ".","", "."));
             }
             table.add(temp);
         }
@@ -103,7 +103,7 @@ public class MainUI extends javax.swing.JFrame {
         for(int k = 1; k <= arrSentence.size(); k++){
             for(NodeCNF node : arrayNodesCFN){
                 if(arrSentence.get(k -1).equalsIgnoreCase(node.getFirstValue()) && node.isIsNonTerminal()){
-                    table.get(k - 1).set(k - 1, new CellInfo(node.getOwnerName(), "", "", ""));
+                    table.get(k - 1).set(k - 1, new CellInfo(node.getOwnerName(), ".", "", "."));
                     if(k == 1){
                         continue;
                     }
@@ -121,7 +121,7 @@ public class MainUI extends javax.swing.JFrame {
                             }
                         }
                     }
-                    //break;
+                    break;
                 }
             }
         }

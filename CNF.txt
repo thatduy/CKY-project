@@ -2,7 +2,7 @@
 NP -> nó
 NP -> N N
 NP -> N Adj
-NP -> Adj NP
+NP -> Q NP
 NP -> NP NP
 VP -> VP NP
 VP -> Adv V
