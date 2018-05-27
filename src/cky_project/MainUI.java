@@ -42,6 +42,7 @@ public class MainUI extends javax.swing.JFrame {
     private ArrayList<NodeCNF> arrayNodesCFN;
     private ArrayList<String> arrSentence;
     private ArrayList<ArrayList<CellInfo>> table;
+    private static final int DELAY = 1000;
 
     public MainUI() {
         initComponents();
@@ -93,28 +94,53 @@ public class MainUI extends javax.swing.JFrame {
         for (int col = 0; col < tableModel.getColumnCount(); col++) {
             tbCKYResult.getColumnModel().getColumn(col).setCellRenderer(rightRenderer);
         }
-
+        tableModel.fireTableDataChanged();
         //END INIT DATA
         
 
     }
 
-    private void realTimeUpdate(){
+    private void realTimeUpdate() throws IOException{
+        boolean paused = true;
         for (int k = 1; k <= arrSentence.size(); k++) {
             for (NodeCNF node : arrayNodesCFN) {
                 if (arrSentence.get(k - 1).equalsIgnoreCase(node.getFirstValue()) && node.isIsNonTerminal()) {
-                    table.get(k - 1).set(k - 1, new CellInfo(node.getOwnerName(), ".", "", "."));
+                    
+                    long startTime = System.currentTimeMillis();
+                    while (paused) {
+                        if (System.currentTimeMillis() - startTime > DELAY) {
+                            paused = false;
+                            table.get(k - 1).set(k - 1, new CellInfo(node.getOwnerName(), ".", "", "."));
+                            tableModel.fireTableDataChanged();
+                        }
+                        // An infinite loop that keeps on going until the pause flag is set to false
+                    }
+                    paused = true;
                     if (k == 1) {
                         continue;
                     }
+                    
                     for (int i = k - 2; i >= 0; i--) {
                         for (int j = i + 1; j <= k - 1; j++) {
                             for (NodeCNF n : arrayNodesCFN) {
+                                if(!table.get(i).get(k-1).getLabelCell().equalsIgnoreCase(".")){
+                                    break;
+                                }
                                 if (table.get(i).get(j - 1).getLabelCell().equalsIgnoreCase(n.getFirstValue())
                                         && table.get(j).get(k - 1).getLabelCell().equalsIgnoreCase(n.getSecondValue())) {
                                     System.out.println(n.getOwnerName());
-                                    table.get(i).set(k - 1, new CellInfo(n.getOwnerName(), "(" + i + ", " + j + ")", "+",
+                                    
+                                    startTime = System.currentTimeMillis();
+                                    while (paused) {
+                                        if(System.currentTimeMillis() - startTime > DELAY){
+                                            paused = false;
+                                            table.get(i).set(k - 1, new CellInfo(n.getOwnerName(), "(" + i + ", " + j + ")", "+",
                                             "(" + j + ", " + k + ")"));
+                                            tableModel.fireTableDataChanged();
+                                        }
+                                    // An infinite loop that keeps on going until the pause flag is set to false
+                                    }
+                                    paused = true;
                                     break;
                                 }
                             }
@@ -125,6 +151,7 @@ public class MainUI extends javax.swing.JFrame {
             }
         }
         tableModel.fireTableDataChanged();
+        JOptionPane.showMessageDialog(null, "Completed CKY Algorithm");
         //tbCKYResult.setR
     }
     /**
@@ -202,7 +229,7 @@ public class MainUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnStart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnReset, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnReset, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -272,7 +299,26 @@ public class MainUI extends javax.swing.JFrame {
             try {
                 readFileCNF("./CNF.txt");
                 parseSentence("nó vừa gặp mấy người bạn trường cũ");
-                realTimeUpdate();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean paused = true;
+                        long startTime = System.currentTimeMillis();
+                        while (paused) {
+                            if (System.currentTimeMillis() - startTime > DELAY) {
+                                paused = false;
+                                try {
+                                    realTimeUpdate();
+                                } catch (IOException ex) {
+                                    Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                            // An infinite loop that keeps on going until the pause flag is set to false
+                        }
+                    }
+                }).start();
+                
+                
             } catch (IOException ex) {
                 Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
             }
