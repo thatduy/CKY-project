@@ -1,8 +1,8 @@
 ﻿S -> NP VP
 NP -> nó
 NP -> N N
-NP -> N Adj
 NP -> Q NP
+NP -> N Adj
 NP -> NP NP
 VP -> VP NP
 VP -> Adv V
