@@ -6,6 +6,9 @@
 package cky_project;
 
 import Model.CellInfo;
+
+import Model.MyEditor;
+import Model.MyRenderer;
 import Model.NodeCNF;
 import Model.TableModel;
 import Util.RowNumberTable;
@@ -43,8 +46,8 @@ public class MainUI extends javax.swing.JFrame {
     private ArrayList<String> arrSentence;
     private ArrayList<ArrayList<CellInfo>> table;
     private static final int DELAY = 1000;
-
     public MainUI() {
+        setTitle("CKY Algorithm");
         initComponents();
 
     }
@@ -78,42 +81,41 @@ public class MainUI extends javax.swing.JFrame {
         for (int i = 0; i < arrSentence.size(); i++) {
             ArrayList<CellInfo> temp = new ArrayList<>();
             for (int j = 0; j < arrSentence.size(); j++) {
-                temp.add(new CellInfo(".", ".", "", "."));
+                temp.add(new CellInfo(".", ".", "", ".", -1));
             }
             table.add(temp);
         }
         tableModel = new TableModel(arrSentence, table);
         tbCKYResult.setModel(tableModel);
+        tbCKYResult.setDefaultRenderer(String.class, new MyRenderer());
+        tbCKYResult.setDefaultEditor(String.class, new MyEditor(tbCKYResult));
+        
         JTable rowTable = new RowNumberTable(tbCKYResult);
         jScrollPane1.setRowHeaderView(rowTable);
         jScrollPane1.setCorner(JScrollPane.UPPER_LEFT_CORNER,
                 rowTable.getTableHeader());
         tbCKYResult.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        for (int col = 0; col < tableModel.getColumnCount(); col++) {
-            tbCKYResult.getColumnModel().getColumn(col).setCellRenderer(rightRenderer);
-        }
+
         tableModel.fireTableDataChanged();
         //END INIT DATA
         
 
     }
 
-    private void realTimeUpdate() throws IOException{
+    private void realTimeUpdate() throws IOException {
         boolean paused = true;
         for (int k = 1; k <= arrSentence.size(); k++) {
             for (NodeCNF node : arrayNodesCFN) {
                 if (arrSentence.get(k - 1).equalsIgnoreCase(node.getFirstValue()) && node.isIsNonTerminal()) {
-                    
+                    table.get(k - 1).set(k - 1, new CellInfo(node.getOwnerName(), ".", "", ".", 0));
+                    tableModel.fireTableDataChanged();
                     long startTime = System.currentTimeMillis();
                     while (paused) {
                         if (System.currentTimeMillis() - startTime > DELAY) {
                             paused = false;
-                            table.get(k - 1).set(k - 1, new CellInfo(node.getOwnerName(), ".", "", "."));
-                            tableModel.fireTableDataChanged();
+                            
+                            
                         }
-                        // An infinite loop that keeps on going until the pause flag is set to false
                     }
                     paused = true;
                     if (k == 1) {
@@ -121,7 +123,19 @@ public class MainUI extends javax.swing.JFrame {
                     }
                     
                     for (int i = k - 2; i >= 0; i--) {
+                        
                         for (int j = i + 1; j <= k - 1; j++) {
+                            table.get(i).get(j-1).setState(1);
+                            table.get(j).get(k-1).setState(2);
+                            tableModel.fireTableDataChanged();
+                            startTime = System.currentTimeMillis();
+                            while (paused) {
+                                if (System.currentTimeMillis() - startTime > DELAY) {
+                                    paused = false;
+                                }
+                                // An infinite loop that keeps on going until the pause flag is set to false
+                            }
+                            paused = true;
                             for (NodeCNF n : arrayNodesCFN) {
                                 if(!table.get(i).get(k-1).getLabelCell().equalsIgnoreCase(".")){
                                     break;
@@ -129,14 +143,15 @@ public class MainUI extends javax.swing.JFrame {
                                 if (table.get(i).get(j - 1).getLabelCell().equalsIgnoreCase(n.getFirstValue())
                                         && table.get(j).get(k - 1).getLabelCell().equalsIgnoreCase(n.getSecondValue())) {
                                     System.out.println(n.getOwnerName());
-                                    
+                                    table.get(i).set(k - 1, new CellInfo(n.getOwnerName(), "(" + i + ", " + j + ")", "+",
+                                            "(" + j + ", " + k + ")", 0));
+                                           
+                                            tableModel.fireTableDataChanged();
                                     startTime = System.currentTimeMillis();
                                     while (paused) {
                                         if(System.currentTimeMillis() - startTime > DELAY){
                                             paused = false;
-                                            table.get(i).set(k - 1, new CellInfo(n.getOwnerName(), "(" + i + ", " + j + ")", "+",
-                                            "(" + j + ", " + k + ")"));
-                                            tableModel.fireTableDataChanged();
+                                            
                                         }
                                     // An infinite loop that keeps on going until the pause flag is set to false
                                     }
@@ -144,6 +159,10 @@ public class MainUI extends javax.swing.JFrame {
                                     break;
                                 }
                             }
+                             table.get(i).get(j-1).setState(-1);
+                             table.get(j).get(k - 1).setState(-1);
+                             table.get(i).get(k - 1).setState(-1);
+                             tableModel.fireTableDataChanged();
                         }
                     }
                     break;
@@ -151,6 +170,7 @@ public class MainUI extends javax.swing.JFrame {
             }
         }
         tableModel.fireTableDataChanged();
+        
         JOptionPane.showMessageDialog(null, "Completed CKY Algorithm");
         //tbCKYResult.setR
     }
@@ -169,6 +189,8 @@ public class MainUI extends javax.swing.JFrame {
         btnReset = new javax.swing.JButton();
         btnImportCNF = new javax.swing.JButton();
         edtCNFPath = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbCKYResult = new javax.swing.JTable();
@@ -178,7 +200,6 @@ public class MainUI extends javax.swing.JFrame {
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "INPUT DATA", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Times New Roman", 1, 14), new java.awt.Color(0, 0, 102))); // NOI18N
 
         edtSentence.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        edtSentence.setText("Sentence");
         edtSentence.setMargin(new java.awt.Insets(2, 10, 2, 10));
 
         btnStart.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
@@ -211,9 +232,14 @@ public class MainUI extends javax.swing.JFrame {
         });
 
         edtCNFPath.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        edtCNFPath.setText("CNF Rules");
         edtCNFPath.setMargin(new java.awt.Insets(2, 10, 2, 10));
         edtCNFPath.setPreferredSize(new java.awt.Dimension(59, 23));
+
+        jLabel1.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jLabel1.setText("Sentence");
+
+        jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jLabel2.setText("CNF Rules");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -222,22 +248,32 @@ public class MainUI extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(edtCNFPath, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(edtSentence)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnImportCNF, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnImportCNF, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnStart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnStart, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnReset, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(btnReset, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(edtSentence)
+                            .addComponent(edtCNFPath, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(edtSentence, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(edtSentence, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(edtCNFPath, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(edtCNFPath, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnImportCNF, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -251,7 +287,6 @@ public class MainUI extends javax.swing.JFrame {
         tbCKYResult.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         tbCKYResult.setCellSelectionEnabled(true);
         tbCKYResult.setRowHeight(60);
-        tbCKYResult.setRowSorter(null);
         jScrollPane1.setViewportView(tbCKYResult);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -297,8 +332,8 @@ public class MainUI extends javax.swing.JFrame {
         } else {
 
             try {
-                readFileCNF("./CNF.txt");
-                parseSentence("nó vừa gặp mấy người bạn trường cũ");
+                readFileCNF(edtCNFPath.getText());
+                parseSentence(edtSentence.getText());
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -326,7 +361,11 @@ public class MainUI extends javax.swing.JFrame {
     }//GEN-LAST:event_onStartClick
 
     private void onResetClick(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_onResetClick
-        
+
+    arrayNodesCFN = new ArrayList<>();
+    arrSentence = new ArrayList<>();
+    table = new ArrayList<>();
+    tableModel.fireTableDataChanged();
         
     }//GEN-LAST:event_onResetClick
 
@@ -351,6 +390,8 @@ public class MainUI extends javax.swing.JFrame {
     private javax.swing.JButton btnStart;
     private javax.swing.JTextField edtCNFPath;
     private javax.swing.JTextField edtSentence;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;

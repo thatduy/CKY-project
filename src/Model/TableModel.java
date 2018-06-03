@@ -5,7 +5,10 @@
  */
 package Model;
 
+
 import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JLabel;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -15,7 +18,14 @@ import javax.swing.table.AbstractTableModel;
 public class TableModel extends AbstractTableModel {
     private ArrayList<String> colunmName;
     private ArrayList<ArrayList<CellInfo>> table;
+   
+    public int getState(int row, int col) {
+            return table.get(row).get(col).getState();
+        }
 
+        public void setState(int row,int col, int state) {
+            table.get(row).get(col).setState(state);
+        }
     public ArrayList<String> getColunmName() {
         return colunmName;
     }
@@ -53,11 +63,10 @@ public class TableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        super.setValueAt(aValue.toString(), rowIndex, columnIndex); //To change body of generated methods, choose Tools | Templates.
+        table.get(rowIndex).set(columnIndex, (CellInfo) aValue);
+        fireTableCellUpdated(rowIndex, columnIndex);
     }
     
-    
-
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         return table.get(rowIndex).get(columnIndex);
@@ -67,6 +76,14 @@ public class TableModel extends AbstractTableModel {
     public String getColumnName(int column) {
         return "<html><b>"+ (column + 1) + "</b><br>"+colunmName.get(column)+"</html>";//To change body of generated methods, choose Tools | Templates.
     }
-    
+    @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return true;
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            return String.class;
+        }
     
 }

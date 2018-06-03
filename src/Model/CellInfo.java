@@ -15,12 +15,30 @@ public class CellInfo {
     private String fisrtIndex;
     private String secondIndex;
     private String plus;
+    private int state;
     
-    public CellInfo(String labelCell, String fisrtIndex,String plus, String secondIndex) {
+    public CellInfo(String labelCell, String fisrtIndex,String plus, String secondIndex, int state) {
         this.labelCell = labelCell;
         this.fisrtIndex = fisrtIndex;
         this.plus = plus;
         this.secondIndex = secondIndex;
+        this.state = state;
+    }
+
+    public String getPlus() {
+        return plus;
+    }
+
+    public void setPlus(String plus) {
+        this.plus = plus;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 
     public CellInfo() {

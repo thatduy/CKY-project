@@ -4,6 +4,7 @@ NP -> N N
 NP -> Q NP
 NP -> N Adj
 NP -> NP NP
+NP -> NP Adj
 VP -> VP NP
 VP -> Adv V
 N -> người
