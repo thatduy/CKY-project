@@ -103,7 +103,7 @@ public class MainUI extends javax.swing.JFrame {
 
     }
 
-    private void realTimeUpdate() throws IOException {
+    private void realTimeUpdate() throws IOException, InterruptedException {
         boolean paused = true;
         for (int k = 1; k <= arrSentence.size(); k++) {
             for (NodeCNF node : arrayNodesCFN) {
@@ -111,13 +111,14 @@ public class MainUI extends javax.swing.JFrame {
                     table.get(k - 1).get(k - 1).setState(0);
                     table.get(k - 1).get(k - 1).getArrayList().add(new Result(node.getOwnerName(), "", ""));
                     tableModel.fireTableDataChanged();
-                    long startTime = System.currentTimeMillis();
-                    while (paused) {
-                        if (System.currentTimeMillis() - startTime > DELAY) {
-                            paused = false;
-                        }
-                    }
-                    paused = true;
+//                    long startTime = System.currentTimeMillis();
+//                    while (paused) {
+//                        if (System.currentTimeMillis() - startTime > DELAY) {
+//                            paused = false;
+//                        }
+//                    }
+//                    paused = true;
+Thread.sleep(1000);
                     if (k == 1) {
                         break;
                     }
@@ -129,13 +130,7 @@ public class MainUI extends javax.swing.JFrame {
                             table.get(i).get(k-1).setState(0); // O dang xet
                             table.get(j).get(k-1).setState(2); // j chay
                             tableModel.fireTableDataChanged();
-                            startTime = System.currentTimeMillis();
-                            while (paused) {
-                                if (System.currentTimeMillis() - startTime > DELAY) {
-                                    paused = false;
-                                }
-                                // An infinite loop that keeps on going until the pause flag is set to false
-                            }
+                            Thread.sleep(1000);
                             paused = true;
                             for (NodeCNF n : arrayNodesCFN) {
                                 for (Result re : table.get(i).get(j - 1).getArrayList()) {
@@ -147,15 +142,7 @@ public class MainUI extends javax.swing.JFrame {
                                                     "(" + j + ", " + k + ")"));
 
                                             tableModel.fireTableDataChanged();
-                                            startTime = System.currentTimeMillis();
-                                            while (paused) {
-                                                if (System.currentTimeMillis() - startTime > DELAY) {
-                                                    paused = false;
-
-                                                }
-                                                // An infinite loop that keeps on going until the pause flag is set to false
-                                            }
-                                            paused = true;
+                                            Thread.sleep(1000);
                                             
                                         }
                                     }
@@ -336,22 +323,21 @@ public class MainUI extends javax.swing.JFrame {
             try {
                 readFileCNF(edtCNFPath.getText());
                 parseSentence(edtSentence.getText());
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean paused = true;
-                        long startTime = System.currentTimeMillis();
-                        while (paused) {
-                            if (System.currentTimeMillis() - startTime > DELAY) {
-                                paused = false;
-                                try {
-                                    realTimeUpdate();
-                                } catch (IOException ex) {
-                                    Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
-                                }
+                new Thread(() -> {
+                    boolean paused = true;
+                    long startTime = System.currentTimeMillis();
+                    while (paused) {
+                        if (System.currentTimeMillis() - startTime > DELAY) {
+                            paused = false;
+                            try {
+                                realTimeUpdate();
+                            } catch (IOException ex) {
+                                Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                            // An infinite loop that keeps on going until the pause flag is set to false
                         }
+                        // An infinite loop that keeps on going until the pause flag is set to false
                     }
                 }).start();
                 
@@ -367,8 +353,9 @@ public class MainUI extends javax.swing.JFrame {
     arrayNodesCFN = new ArrayList<>();
     arrSentence = new ArrayList<>();
     table = new ArrayList<>();
-    tableModel.fireTableDataChanged();
-        
+    tableModel = new TableModel();
+    tableModel.setColunmName(arrSentence);
+    tbCKYResult.setModel(tableModel);
     }//GEN-LAST:event_onResetClick
 
     private void onImportCNFClick(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_onImportCNFClick

@@ -47,9 +47,9 @@ public class Result {
     @Override
     public String toString() {
         if(labelCell.isEmpty() || fisrtIndex.isEmpty()){
-            return labelCell;
+            return "<b>" + labelCell + "</b>";
         }
-        return labelCell + "( " + fisrtIndex + " + " + secondIndex + " )" ;
+        return "<b>" + labelCell + "</b>"+ "( " + fisrtIndex + " + " + secondIndex + " )" ;
     }
     
     

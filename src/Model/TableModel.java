@@ -63,7 +63,7 @@ public class TableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        table.get(rowIndex).set(columnIndex, (CellInfo) aValue);
+        //table.get(rowIndex).set(columnIndex, (CellInfo) aValue);
         fireTableCellUpdated(rowIndex, columnIndex);
     }
     
