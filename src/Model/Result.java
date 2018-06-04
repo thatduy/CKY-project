@@ -49,7 +49,7 @@ public class Result {
         if(labelCell.isEmpty() || fisrtIndex.isEmpty()){
             return "<b>" + labelCell + "</b>";
         }
-        return "<b>" + labelCell + "</b>"+ "( " + fisrtIndex + " + " + secondIndex + " )" ;
+        return "<b>" + labelCell + "</b>"+ "(" + fisrtIndex + " + " + secondIndex + ")" ;
     }
     
     

@@ -14,6 +14,16 @@ public class NodeCNF {
     private String firstValue;
     private String secondValue;
     private boolean isNonTerminal;
+    private boolean isUsed;
+
+    public boolean isIsUsed() {
+        return isUsed;
+    }
+
+    public void setIsUsed(boolean isUsed) {
+        this.isUsed = isUsed;
+    }
+    
 
     public boolean isIsNonTerminal() {
         return isNonTerminal;
@@ -32,6 +42,7 @@ public class NodeCNF {
         this.firstValue = firstValue;
         this.secondValue = secondValue;
         this.isNonTerminal = isNonTerminal;
+        isUsed = false;
     }
 
     public String getOwnerName() {

@@ -46,7 +46,8 @@ public class MainUI extends javax.swing.JFrame {
     private ArrayList<NodeCNF> arrayNodesCFN;
     private ArrayList<String> arrSentence;
     private ArrayList<ArrayList<CellInfo>> table;
-    private static final int DELAY = 1000;
+    private static final int DELAY = 10;
+
     public MainUI() {
         setTitle("CKY Algorithm");
         initComponents();
@@ -61,10 +62,10 @@ public class MainUI extends javax.swing.JFrame {
             String[] secondPart = line.split("->")[1].trim().split(" ");
             if (secondPart.length > 1) {
                 arrayNodesCFN.add(new NodeCNF(line.split("->")[0].trim(), secondPart[0],
-                         secondPart[1], false));
+                        secondPart[1], false));
             } else {
                 arrayNodesCFN.add(new NodeCNF(line.split("->")[0].trim(), secondPart[0],
-                         "", true));
+                        "", true));
             }
 
         }
@@ -90,7 +91,7 @@ public class MainUI extends javax.swing.JFrame {
         tbCKYResult.setModel(tableModel);
         tbCKYResult.setDefaultRenderer(String.class, new MyRenderer());
         tbCKYResult.setDefaultEditor(String.class, new MyEditor(tbCKYResult));
-        
+
         JTable rowTable = new RowNumberTable(tbCKYResult);
         jScrollPane1.setRowHeaderView(rowTable);
         jScrollPane1.setCorner(JScrollPane.UPPER_LEFT_CORNER,
@@ -99,38 +100,34 @@ public class MainUI extends javax.swing.JFrame {
 
         tableModel.fireTableDataChanged();
         //END INIT DATA
-        
 
     }
 
     private void realTimeUpdate() throws IOException, InterruptedException {
         boolean paused = true;
-        for (int k = 1; k <= arrSentence.size(); k++) {
-            for (NodeCNF node : arrayNodesCFN) {
-                if (arrSentence.get(k - 1).equalsIgnoreCase(node.getFirstValue()) && node.isIsNonTerminal()) {
+        int size = arrSentence.size();
+        for (int k = 1; k <= size; k++) {
+            for (int h = 0; h <arrayNodesCFN.size(); h++) {
+                if (arrSentence.get(k - 1).equalsIgnoreCase(arrayNodesCFN.get(h).getFirstValue()) && arrayNodesCFN.get(h).isIsNonTerminal() 
+                        && !arrayNodesCFN.get(h).isIsUsed()
+                        ) {
                     table.get(k - 1).get(k - 1).setState(0);
-                    table.get(k - 1).get(k - 1).getArrayList().add(new Result(node.getOwnerName(), "", ""));
+                    arrayNodesCFN.get(h).setIsUsed(true);
+                    table.get(k - 1).get(k - 1).getArrayList().add(new Result(arrayNodesCFN.get(h).getOwnerName(), "", ""));
                     tableModel.fireTableDataChanged();
-//                    long startTime = System.currentTimeMillis();
-//                    while (paused) {
-//                        if (System.currentTimeMillis() - startTime > DELAY) {
-//                            paused = false;
-//                        }
-//                    }
-//                    paused = true;
-Thread.sleep(1000);
+                    Thread.sleep(DELAY);
                     if (k == 1) {
                         break;
                     }
-                    
+
                     for (int i = k - 2; i >= 0; i--) {
-                        
+
                         for (int j = i + 1; j <= k - 1; j++) {
-                            table.get(i).get(j-1).setState(1); // i chay
-                            table.get(i).get(k-1).setState(0); // O dang xet
-                            table.get(j).get(k-1).setState(2); // j chay
+                            table.get(i).get(j - 1).setState(1); // i chay
+                            table.get(i).get(k - 1).setState(0); // O dang xet
+                            table.get(j).get(k - 1).setState(2); // j chay
                             tableModel.fireTableDataChanged();
-                            Thread.sleep(1000);
+                            Thread.sleep(DELAY);
                             paused = true;
                             for (NodeCNF n : arrayNodesCFN) {
                                 for (Result re : table.get(i).get(j - 1).getArrayList()) {
@@ -142,16 +139,16 @@ Thread.sleep(1000);
                                                     "(" + j + ", " + k + ")"));
 
                                             tableModel.fireTableDataChanged();
-                                            Thread.sleep(1000);
-                                            
+                                            Thread.sleep(DELAY);
+
                                         }
                                     }
                                 }
                             }
-                             table.get(i).get(j-1).setState(-1);
-                             table.get(j).get(k - 1).setState(-1);
-                             table.get(i).get(k - 1).setState(-1);
-                             tableModel.fireTableDataChanged();
+                            table.get(i).get(j - 1).setState(-1);
+                            table.get(j).get(k - 1).setState(-1);
+                            table.get(i).get(k - 1).setState(-1);
+                            tableModel.fireTableDataChanged();
                         }
                     }
                     break;
@@ -159,10 +156,11 @@ Thread.sleep(1000);
             }
         }
         tableModel.fireTableDataChanged();
-        
+
         JOptionPane.showMessageDialog(null, "Completed CKY Algorithm");
         //tbCKYResult.setR
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -275,7 +273,7 @@ Thread.sleep(1000);
 
         tbCKYResult.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         tbCKYResult.setCellSelectionEnabled(true);
-        tbCKYResult.setRowHeight(60);
+        tbCKYResult.setRowHeight(200);
         jScrollPane1.setViewportView(tbCKYResult);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -340,8 +338,7 @@ Thread.sleep(1000);
                         // An infinite loop that keeps on going until the pause flag is set to false
                     }
                 }).start();
-                
-                
+
             } catch (IOException ex) {
                 Logger.getLogger(MainUI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -350,12 +347,12 @@ Thread.sleep(1000);
 
     private void onResetClick(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_onResetClick
 
-    arrayNodesCFN = new ArrayList<>();
-    arrSentence = new ArrayList<>();
-    table = new ArrayList<>();
-    tableModel = new TableModel();
-    tableModel.setColunmName(arrSentence);
-    tbCKYResult.setModel(tableModel);
+        arrayNodesCFN = new ArrayList<>();
+        arrSentence = new ArrayList<>();
+        table = new ArrayList<>();
+        tableModel = new TableModel();
+        tableModel.setColunmName(arrSentence);
+        tbCKYResult.setModel(tableModel);
     }//GEN-LAST:event_onResetClick
 
     private void onImportCNFClick(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_onImportCNFClick
