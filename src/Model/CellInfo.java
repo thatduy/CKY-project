@@ -5,33 +5,33 @@
  */
 package Model;
 
+import java.util.ArrayList;
+
 
 /**
  *
  * @author ASUS
  */
 public class CellInfo {
-    private String labelCell;
-    private String fisrtIndex;
-    private String secondIndex;
-    private String plus;
-    private int state;
     
-    public CellInfo(String labelCell, String fisrtIndex,String plus, String secondIndex, int state) {
-        this.labelCell = labelCell;
-        this.fisrtIndex = fisrtIndex;
-        this.plus = plus;
-        this.secondIndex = secondIndex;
+    
+    private int state;
+    private ArrayList<Result> arrayList;
+    
+    public CellInfo(String labelCell, String fisrtIndex, String secondIndex, int state) {
+        arrayList = new ArrayList<>();
         this.state = state;
     }
 
-    public String getPlus() {
-        return plus;
+    public ArrayList<Result> getArrayList() {
+        return arrayList;
     }
 
-    public void setPlus(String plus) {
-        this.plus = plus;
+    public void setArrayList(ArrayList<Result> arrayList) {
+        this.arrayList = arrayList;
     }
+
+   
 
     public int getState() {
         return state;
@@ -44,34 +44,18 @@ public class CellInfo {
     public CellInfo() {
     }
 
-    public String getLabelCell() {
-        return labelCell;
-    }
-
-    public void setLabelCell(String labelCell) {
-        this.labelCell = labelCell;
-    }
-
-    public String getFisrtIndex() {
-        return fisrtIndex;
-    }
-
-    public void setFisrtIndex(String fisrtIndex) {
-        this.fisrtIndex = fisrtIndex;
-    }
-
-    public String getSecondIndex() {
-        return secondIndex;
-    }
-
-    public void setSecondIndex(String secondIndex) {
-        this.secondIndex = secondIndex;
-    }
+    
 
     @Override
     public String toString() {
-        return "<html><b>"+ labelCell + "</b><br>" + fisrtIndex + " " + plus + "<br>" + secondIndex +"</html>";
-                //"CellInfo{" + "labelCell=" + labelCell + ", fisrtIndex=" + fisrtIndex + ", secondIndex=" + secondIndex + '}';
+        if(!arrayList.isEmpty()){
+        String base =  "<html><br>";// + fisrtIndex + " " + plus + "<br>" + secondIndex +"</html>";
+        for(Result re : arrayList){
+            base += re.toString() + "<br>";
+        }
+        return base + "</html>";
+        }
+        return "";
     }
 
    

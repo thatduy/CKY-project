@@ -10,6 +10,7 @@ import Model.CellInfo;
 import Model.MyEditor;
 import Model.MyRenderer;
 import Model.NodeCNF;
+import Model.Result;
 import Model.TableModel;
 import Util.RowNumberTable;
 import java.awt.event.ActionEvent;
@@ -81,7 +82,7 @@ public class MainUI extends javax.swing.JFrame {
         for (int i = 0; i < arrSentence.size(); i++) {
             ArrayList<CellInfo> temp = new ArrayList<>();
             for (int j = 0; j < arrSentence.size(); j++) {
-                temp.add(new CellInfo(".", ".", "", ".", -1));
+                temp.add(new CellInfo("", "", "", -1));
             }
             table.add(temp);
         }
@@ -107,19 +108,18 @@ public class MainUI extends javax.swing.JFrame {
         for (int k = 1; k <= arrSentence.size(); k++) {
             for (NodeCNF node : arrayNodesCFN) {
                 if (arrSentence.get(k - 1).equalsIgnoreCase(node.getFirstValue()) && node.isIsNonTerminal()) {
-                    table.get(k - 1).set(k - 1, new CellInfo(node.getOwnerName(), ".", "", ".", 0));
+                    table.get(k - 1).get(k - 1).setState(0);
+                    table.get(k - 1).get(k - 1).getArrayList().add(new Result(node.getOwnerName(), "", ""));
                     tableModel.fireTableDataChanged();
                     long startTime = System.currentTimeMillis();
                     while (paused) {
                         if (System.currentTimeMillis() - startTime > DELAY) {
                             paused = false;
-                            
-                            
                         }
                     }
                     paused = true;
                     if (k == 1) {
-                        continue;
+                        break;
                     }
                     
                     for (int i = k - 2; i >= 0; i--) {
@@ -137,26 +137,27 @@ public class MainUI extends javax.swing.JFrame {
                             }
                             paused = true;
                             for (NodeCNF n : arrayNodesCFN) {
-                                if(!table.get(i).get(k-1).getLabelCell().equalsIgnoreCase(".")){
-                                    break;
-                                }
-                                if (table.get(i).get(j - 1).getLabelCell().equalsIgnoreCase(n.getFirstValue())
-                                        && table.get(j).get(k - 1).getLabelCell().equalsIgnoreCase(n.getSecondValue())) {
-                                    System.out.println(n.getOwnerName());
-                                    table.get(i).set(k - 1, new CellInfo(n.getOwnerName(), "(" + i + ", " + j + ")", "+",
-                                            "(" + j + ", " + k + ")", 0));
-                                           
+                                for (Result re : table.get(i).get(j - 1).getArrayList()) {
+                                    for (Result re2 : table.get(j).get(k - 1).getArrayList()) {
+                                        if (re.getLabelCell().equalsIgnoreCase(n.getFirstValue())
+                                                && re2.getLabelCell().equalsIgnoreCase(n.getSecondValue())) {
+                                            System.out.println(n.getOwnerName());
+                                            table.get(i).get(k - 1).getArrayList().add(new Result(n.getOwnerName(), "(" + i + ", " + j + ")",
+                                                    "(" + j + ", " + k + ")"));
+
                                             tableModel.fireTableDataChanged();
-                                    startTime = System.currentTimeMillis();
-                                    while (paused) {
-                                        if(System.currentTimeMillis() - startTime > DELAY){
-                                            paused = false;
+                                            startTime = System.currentTimeMillis();
+                                            while (paused) {
+                                                if (System.currentTimeMillis() - startTime > DELAY) {
+                                                    paused = false;
+
+                                                }
+                                                // An infinite loop that keeps on going until the pause flag is set to false
+                                            }
+                                            paused = true;
                                             
                                         }
-                                    // An infinite loop that keeps on going until the pause flag is set to false
                                     }
-                                    paused = true;
-                                    break;
                                 }
                             }
                              table.get(i).get(j-1).setState(-1);
