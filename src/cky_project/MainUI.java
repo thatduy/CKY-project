@@ -125,8 +125,9 @@ public class MainUI extends javax.swing.JFrame {
                     for (int i = k - 2; i >= 0; i--) {
                         
                         for (int j = i + 1; j <= k - 1; j++) {
-                            table.get(i).get(j-1).setState(1);
-                            table.get(j).get(k-1).setState(2);
+                            table.get(i).get(j-1).setState(1); // i chay
+                            table.get(i).get(k-1).setState(0); // O dang xet
+                            table.get(j).get(k-1).setState(2); // j chay
                             tableModel.fireTableDataChanged();
                             startTime = System.currentTimeMillis();
                             while (paused) {
