@@ -20,7 +20,8 @@ public class MyRenderer extends DefaultTableCellRenderer {
         Color backgroundColor = getBackground();
 
     public MyRenderer() {
-        setHorizontalAlignment(SwingConstants.CENTER);
+        setHorizontalAlignment(SwingConstants.LEFT);
+        setVerticalAlignment(SwingConstants.TOP);
     }
 
         @Override
@@ -30,6 +31,12 @@ public class MyRenderer extends DefaultTableCellRenderer {
             Component c = super.getTableCellRendererComponent(
                 table, value, isSelected, hasFocus, row, column);
             TableModel model = (TableModel) table.getModel();
+            CellInfo info = model.getTable().get(row).get(column);
+            int n = info.getArrayList().size();
+            if(n * 20 > table.getRowHeight()){
+                table.setRowHeight(n * 20);
+            }
+            
             int state = model.getState(row, column);
             if (state == 0) {
                 c.setBackground(Color.green.brighter());

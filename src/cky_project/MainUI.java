@@ -271,9 +271,9 @@ public class MainUI extends javax.swing.JFrame {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "RESULT", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Times New Roman", 1, 14), new java.awt.Color(0, 0, 102))); // NOI18N
 
-        tbCKYResult.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        tbCKYResult.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
         tbCKYResult.setCellSelectionEnabled(true);
-        tbCKYResult.setRowHeight(200);
+        tbCKYResult.setRowHeight(60);
         jScrollPane1.setViewportView(tbCKYResult);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);

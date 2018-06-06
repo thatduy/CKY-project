@@ -1,0 +1,19 @@
+﻿S -> NP VP
+NP -> NP PP
+NP -> UN NP
+NP -> gia_dinh
+NP -> nam
+NP -> CD NP
+NP -> NP JJ
+NP -> nha
+NP -> que
+VP -> VP NP
+VP -> RB VB
+PP -> IN NP
+IN -> cua
+IN -> o
+RB -> moi
+JJ -> moi
+VB -> mua
+CD -> mot
+UN -> can
